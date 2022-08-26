@@ -6,7 +6,7 @@ import 'src/flutter_sms_platform.dart';
 Future<String> sendSMS({
   required String message,
   required List<String> recipients,
-  bool sendDirect = false,
+  int? sendDirect ,
 }) =>
     FlutterSmsPlatform.instance.sendSMS(
       message: message,

@@ -33,7 +33,7 @@ class _MyAppState extends State<MyApp> {
       String _result = await sendSMS(
         message: _controllerMessage.text,
         recipients: recipients,
-        sendDirect: sendDirect,
+        sendDirect: sendDirect?0:1,
       );
       setState(() => _message = _result);
     } catch (error) {

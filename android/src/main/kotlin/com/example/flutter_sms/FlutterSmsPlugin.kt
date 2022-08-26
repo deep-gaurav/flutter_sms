@@ -82,7 +82,7 @@ class FlutterSmsPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
           }
           val message = call.argument<String?>("message") ?: ""
           val recipients = call.argument<String?>("recipients") ?: ""
-          val sendDirect = call.argument<Boolean?>("sendDirect") ?: false
+          val sendDirect = call.argument<Int?>("sendDirect")
           sendSMS(result, recipients, message!!, sendDirect)
         }
         "canSendSMS" -> result.success(canSendSMS())
@@ -100,19 +100,19 @@ class FlutterSmsPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
     return !(activityInfo == null || !activityInfo.exported)
   }
 
-  private fun sendSMS(result: Result, phones: String, message: String, sendDirect: Boolean) {
-    if (sendDirect) {
-      sendSMSDirect(result, phones, message);
+  private fun sendSMS(result: Result, phones: String, message: String, sendDirect: Int?) {
+    if (sendDirect!=null) {
+      sendSMSDirect(result, phones, message,sendDirect);
     }
     else {
       sendSMSDialog(result, phones, message);
     }
   }
 
-  private fun sendSMSDirect(result: Result, phones: String, message: String) {
+  private fun sendSMSDirect(result: Result, phones: String, message: String, subcriptionId:Int) {
     // SmsManager is android.telephony
     val sentIntent = PendingIntent.getBroadcast(activity, 0, Intent("SMS_SENT_ACTION"), PendingIntent.FLAG_IMMUTABLE)
-    val mSmsManager = SmsManager.getDefault()
+    val mSmsManager = SmsManager.getSmsManagerForSubscriptionId(subcriptionId)
     val numbers = phones.split(";")
 
     for (num in numbers) {

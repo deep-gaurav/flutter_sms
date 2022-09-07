@@ -26,7 +26,7 @@ import io.flutter.plugin.common.PluginRegistry.Registrar
 
 class FlutterSmsPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     private lateinit var mChannel: MethodChannel
-    private var activity: Activity? = null
+    public var activity: Activity? = null
     private val REQUEST_CODE_SEND_SMS = 205
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {

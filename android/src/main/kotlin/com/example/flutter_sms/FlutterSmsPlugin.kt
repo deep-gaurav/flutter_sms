@@ -118,8 +118,18 @@ class FlutterSmsPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         val mSmsManager = SmsManager.getSmsManagerForSubscriptionId(subcriptionId)
         activity?.applicationContext?.registerReceiver(object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
+                // Refer https://developer.android.com/reference/android/telephony/SmsManager#sendTextMessage(java.lang.String,%20java.lang.String,%20java.lang.String,%20android.app.PendingIntent,%20android.app.PendingIntent)
+
                 when (resultCode) {
                     Activity.RESULT_OK -> result.success("SMS Sent")
+                    SmsManager.RESULT_ERROR_RADIO_OFF,
+                    SmsManager.RESULT_ERROR_NO_SERVICE,
+                    SmsManager.RESULT_RADIO_NOT_AVAILABLE,
+                    SmsManager.RESULT_MODEM_ERROR,
+                    SmsManager.RESULT_RIL_RADIO_NOT_AVAILABLE,
+                    SmsManager.RESULT_RIL_NETWORK_NOT_READY,
+                    -> result.error("radioOff", "Radio Off", "Radio is off")
+
                     else -> result.error("failed", "Sms Send Failed", "Generic Error")
                 }
                 activity?.applicationContext?.unregisterReceiver(this)

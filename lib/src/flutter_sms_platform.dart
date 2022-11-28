@@ -56,6 +56,14 @@ class FlutterSmsPlatform extends PlatformInterface {
     }
   }
 
+  Future<bool> closeSMS() async {
+    if (Platform.isIOS) {
+      return (await _channel.invokeMethod('closeSMS'));
+    } else {
+      return false;
+    }
+  }
+
   Future<bool> canSendSMS() {
     return _channel
         .invokeMethod<bool>('canSendSMS')

@@ -51,6 +51,19 @@ public class SwiftFlutterSmsPlugin: NSObject, FlutterPlugin, UINavigationControl
           result(false)
         }
       #endif
+    case "closeSMS":
+        if let callback = self.result {
+            callback(FlutterError(
+                code: "message_timeout",
+                message: "MessageTimeout",
+                details: "Send msg timed out"
+              ))
+            UIApplication.shared.keyWindow?.rootViewController?.dismiss(animated: true, completion: nil)
+            result(true)
+        }else{
+            result(false)
+        }
+        break
 
     default:
         result(FlutterMethodNotImplemented)
@@ -66,6 +79,7 @@ public class SwiftFlutterSmsPlugin: NSObject, FlutterPlugin, UINavigationControl
     ]
     if let callback = self.result {
         callback(map[result])
+        self.result = nil
     }
     UIApplication.shared.keyWindow?.rootViewController?.dismiss(animated: true, completion: nil)
   }

@@ -3,6 +3,7 @@ package com.example.flutter_sms
 import android.annotation.TargetApi
 import android.app.Activity
 import android.app.PendingIntent
+import android.app.Service
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -10,9 +11,12 @@ import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
+import android.provider.Settings
 import android.telephony.SmsManager
+import android.telephony.TelephonyManager
 import android.util.Log
 import androidx.annotation.NonNull
+import androidx.annotation.RequiresApi
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -111,8 +115,31 @@ class FlutterSmsPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         }
     }
 
+    fun isAirplaneModeOn(context: Context): Boolean {
+        return Settings.System.getInt(context.contentResolver,
+                Settings.Global.AIRPLANE_MODE_ON, 0) != 0
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.P)
+    fun isNoSignalStrength(context: Context): Boolean {
+        val telephonyManager = context.getSystemService(Service.TELEPHONY_SERVICE) as TelephonyManager
+        return telephonyManager.signalStrength!!.level == 0
+    }
+
     private fun sendSMSDirect(result: Result, phones: String, message: String, subcriptionId: Int) {
         // SmsManager is android.telephony
+        if (isAirplaneModeOn(activity!!.applicationContext)) {
+            result.error("radioOff", "Airplane mode on", "Airplane mode is on")
+            return
+        }
+        if (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    isNoSignalStrength(activity!!.applicationContext)
+                } else {
+                    false
+                }) {
+            result.error("radioOff", "No Signal", "No Signal")
+            return
+        }
         val smsSentFlag = "SMS_SENT_ACTION"
         val sentIntent = PendingIntent.getBroadcast(activity, 0, Intent(smsSentFlag), PendingIntent.FLAG_IMMUTABLE)
         val mSmsManager = SmsManager.getSmsManagerForSubscriptionId(subcriptionId)

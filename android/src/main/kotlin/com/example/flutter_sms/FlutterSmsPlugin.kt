@@ -142,7 +142,11 @@ class FlutterSmsPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         }
         val smsSentFlag = "SMS_SENT_ACTION"
         val sentIntent = PendingIntent.getBroadcast(activity, 0, Intent(smsSentFlag), PendingIntent.FLAG_IMMUTABLE)
-        val mSmsManager = SmsManager.getSmsManagerForSubscriptionId(subcriptionId)
+        val mSmsManager = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            activity?.applicationContext?.getSystemService(SmsManager::class.java)?.createForSubscriptionId(subcriptionId)!!
+        } else {
+            SmsManager.getSmsManagerForSubscriptionId(subcriptionId)
+        }
         activity?.applicationContext?.registerReceiver(object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
                 // Refer https://developer.android.com/reference/android/telephony/SmsManager#sendTextMessage(java.lang.String,%20java.lang.String,%20java.lang.String,%20android.app.PendingIntent,%20android.app.PendingIntent)
@@ -155,9 +159,9 @@ class FlutterSmsPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                     SmsManager.RESULT_MODEM_ERROR,
                     SmsManager.RESULT_RIL_RADIO_NOT_AVAILABLE,
                     SmsManager.RESULT_RIL_NETWORK_NOT_READY,
-                    -> result.error("radioOff", "Radio Off", "Radio is off")
+                    -> result.error("radioOff", "Radio Off $resultCode", "Radio is off resultCode : $resultCode")
 
-                    else -> result.error("failed", "Sms Send Failed", "Generic Error")
+                    else -> result.error("failed", "Sms Send Failed : $resultCode", "Generic Error resultCode : $resultCode")
                 }
                 activity?.applicationContext?.unregisterReceiver(this)
             }

@@ -159,9 +159,9 @@ class FlutterSmsPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                     SmsManager.RESULT_MODEM_ERROR,
                     SmsManager.RESULT_RIL_RADIO_NOT_AVAILABLE,
                     SmsManager.RESULT_RIL_NETWORK_NOT_READY,
-                    -> result.error("radioOff", "Radio Off $resultCode", "Radio is off resultCode : $resultCode")
+                    -> result.error("radioOff", "Radio Off :$resultCode", "Radio is off resultCode :$resultCode")
 
-                    else -> result.error("failed", "Sms Send Failed : $resultCode", "Generic Error resultCode : $resultCode")
+                    else -> result.error("failed", "Sms Send Failed :$resultCode", "Generic Error resultCode :$resultCode")
                 }
                 activity?.applicationContext?.unregisterReceiver(this)
             }
